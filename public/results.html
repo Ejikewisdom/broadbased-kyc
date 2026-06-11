@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verification Results — Broadbased</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:       #0f1117;
+      --ink-soft:  #4a5060;
+      --ink-faint: #9aa0ae;
+      --surface:   #f7f8fa;
+      --white:     #ffffff;
+      --accent:    #1a56db;
+      --accent-dim:#e8eefb;
+      --success:   #0d7a55;
+      --success-bg:#e6f6f1;
+      --fail:      #c0392b;
+      --fail-bg:   #fdecea;
+      --pending:   #b45309;
+      --pending-bg:#fef3c7;
+      --border:    #e2e5ea;
+      --radius:    14px;
+      --shadow:    0 2px 16px rgba(15,17,23,0.08);
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--surface); color: var(--ink); min-height: 100vh; }
+
+    nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { font-family: 'DM Serif Display', serif; font-size: 1.25rem; color: var(--ink); text-decoration: none; letter-spacing: -0.02em; }
+    .nav-actions { display: flex; gap: 10px; align-items: center; }
+    .btn-sm { font-size: 0.82rem; font-weight: 500; padding: 6px 14px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--ink-soft); font-family: 'Inter', sans-serif; transition: all 0.15s; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn-primary:hover { background: #1348c2; color: white; }
+
+    .page { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 2rem; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .page-header p { color: var(--ink-soft); font-size: 0.9rem; }
+
+    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 28px; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .stat-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 8px; }
+    .stat-value { font-size: 2rem; font-weight: 600; line-height: 1; letter-spacing: -0.03em; }
+    .stat-value.blue  { color: var(--accent); }
+    .stat-value.green { color: var(--success); }
+    .stat-value.red   { color: var(--fail); }
+
+    .toolbar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+    .filter-btn { font-size: 0.8rem; font-weight: 500; padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--white); color: var(--ink-soft); cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.12s; }
+    .filter-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+    .spacer { flex: 1; }
+    #search-input { padding: 7px 13px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none; width: 200px; transition: border-color 0.15s; }
+    #search-input:focus { border-color: var(--accent); }
+
+    .table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: #f4f6fb; border-bottom: 1px solid var(--border); }
+    th { padding: 12px 18px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); text-align: left; }
+    td { padding: 14px 18px; font-size: 0.875rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafbfd; }
+
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge.verified { background: var(--success-bg); color: var(--success); }
+    .badge.failed   { background: var(--fail-bg);    color: var(--fail); }
+    .badge.unknown  { background: var(--pending-bg); color: var(--pending); }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .confidence-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .confidence-bar { height: 5px; border-radius: 3px; background: var(--border); width: 60px; overflow: hidden; }
+    .confidence-fill { height: 100%; border-radius: 3px; background: var(--success); }
+    .confidence-fill.mid { background: #d97706; }
+    .confidence-fill.low { background: var(--fail); }
+    .reference-code { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--ink-soft); background: var(--surface); padding: 2px 7px; border-radius: 5px; }
+
+    .expand-row td { background: #f9fafb; padding: 0; }
+    .expand-inner { padding: 18px 24px; border-top: 1px dashed var(--border); }
+    .raw-json { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--ink-soft); white-space: pre-wrap; word-break: break-all; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 14px; max-height: 260px; overflow: auto; }
+    .expand-btn { background: none; border: none; cursor: pointer; color: var(--accent); font-size: 1rem; padding: 2px 6px; border-radius: 4px; transition: background 0.12s; }
+    .expand-btn:hover { background: var(--accent-dim); }
+
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-state h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--ink-soft); }
+    .empty-state p  { font-size: 0.875rem; color: var(--ink-faint); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
+
+    @media (max-width: 700px) {
+      .stats { grid-template-columns: repeat(2,1fr); }
+      th:nth-child(4), td:nth-child(4), th:nth-child(5), td:nth-child(5) { display: none; }
+      nav { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-brand" href="index.html">Broadbased KYC</a>
+    <div class="nav-actions">
+      <button class="btn-sm" onclick="loadResults()">↺ Refresh</button>
+      <a class="btn-sm btn-primary" href="index.html">+ New Verification</a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="page-header">
+      <h1>Verification Results</h1>
+      <p>All verifications completed via the widget — stored privately, newest first.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value blue" id="stat-total">—</div></div>
+      <div class="stat-card"><div class="stat-label">Verified</div><div class="stat-value green" id="stat-verified">—</div></div>
+      <div class="stat-card"><div class="stat-label">Failed</div><div class="stat-value red" id="stat-failed">—</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Confidence</div><div class="stat-value" id="stat-confidence">—</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('VERIFIED', this)">Verified</button>
+      <button class="filter-btn" onclick="setFilter('FAILED', this)">Failed</button>
+      <div class="spacer"></div>
+      <input type="text" id="search-input" placeholder="Search name or reference…" oninput="renderTable()" />
+    </div>
+
+    <div class="table-wrap">
+      <div id="table-container">
+        <div class="empty-state"><div class="spinner"></div><h3>Loading results…</h3></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allResults = [];
+    let currentFilter = 'all';
+
+    async function loadResults() {
+      document.getElementById('table-container').innerHTML =
+        `<div class="empty-state"><div class="spinner"></div><h3>Loading results…</h3></div>`;
+      try {
+        const res  = await fetch('/api/results');
+        const data = await res.json();
+        allResults = data.results || [];
+        updateStats();
+        renderTable();
+      } catch {
+        document.getElementById('table-container').innerHTML =
+          `<div class="empty-state"><h3>Could not load results</h3><p>Make sure the site is fully deployed on Netlify.</p></div>`;
+      }
+    }
+
+    function updateStats() {
+      const verified = allResults.filter(r => r.status === 'VERIFIED').length;
+      const failed   = allResults.filter(r => r.status !== 'VERIFIED' && r.status !== 'UNKNOWN').length;
+      const scores   = allResults.map(r => r.faceConfidence).filter(Boolean);
+      const avg      = scores.length ? (scores.reduce((a,b) => a+b,0) / scores.length).toFixed(1) : '—';
+      document.getElementById('stat-total').textContent      = allResults.length;
+      document.getElementById('stat-verified').textContent   = verified;
+      document.getElementById('stat-failed').textContent     = failed;
+      document.getElementById('stat-confidence').textContent = avg !== '—' ? `${avg}%` : '—';
+    }
+
+    function setFilter(f, btn) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTable();
+    }
+
+    function renderTable() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const rows   = allResults.filter(r => {
+        const matchFilter = currentFilter === 'all' || r.status === currentFilter;
+        const name = `${r.firstName||''} ${r.lastName||''}`.toLowerCase();
+        const ref  = (r.reference||'').toLowerCase();
+        const uid  = (r.userId||'').toLowerCase();
+        return matchFilter && (!search || name.includes(search) || ref.includes(search) || uid.includes(search));
+      });
+
+      if (!rows.length) {
+        document.getElementById('table-container').innerHTML =
+          `<div class="empty-state">
+            <h3>${allResults.length === 0 ? 'No verifications yet' : 'No matching results'}</h3>
+            <p>${allResults.length === 0 ? 'Complete a verification on the home page — it will appear here.' : 'Try a different search or filter.'}</p>
+          </div>`;
+        return;
+      }
+
+      document.getElementById('table-container').innerHTML =
+        `<table><thead><tr><th></th><th>Name</th><th>Status</th><th>Confidence</th><th>User / Reference</th><th>Time</th></tr></thead><tbody id="results-tbody"></tbody></table>`;
+
+      const tbody = document.getElementById('results-tbody');
+      rows.forEach((r, idx) => {
+        const isVerified = r.status === 'VERIFIED';
+        const conf       = r.faceConfidence;
+        const confClass  = conf >= 80 ? '' : conf >= 60 ? 'mid' : 'low';
+        const name       = [r.firstName, r.lastName].filter(Boolean).join(' ') || '—';
+        const time       = r.receivedAt ? new Date(r.receivedAt).toLocaleString('en-NG', {dateStyle:'medium',timeStyle:'short'}) : '—';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><button class="expand-btn" onclick="toggleExpand(${idx})">▸</button></td>
+          <td><strong>${name}</strong></td>
+          <td><span class="badge ${isVerified ? 'verified' : r.status === 'UNKNOWN' ? 'unknown' : 'failed'}"><span class="badge-dot"></span>${r.status||'UNKNOWN'}</span></td>
+          <td>${conf != null ? `<div class="confidence-bar-wrap"><div class="confidence-bar"><div class="confidence-fill ${confClass}" style="width:${Math.min(conf,100)}%"></div></div><span>${conf.toFixed(1)}%</span></div>` : '—'}</td>
+          <td>
+            <div style="font-size:0.8rem;color:var(--ink-soft)">${r.userId||'—'}</div>
+            ${r.reference ? `<span class="reference-code">${r.reference.slice(0,20)}…</span>` : ''}
+          </td>
+          <td style="color:var(--ink-soft);font-size:0.82rem">${time}</td>`;
+        tbody.appendChild(tr);
+
+        const expTr = document.createElement('tr');
+        expTr.className = 'expand-row';
+        expTr.id = `expand-${idx}`;
+        expTr.style.display = 'none';
+        expTr.innerHTML = `<td colspan="6"><div class="expand-inner"><div style="font-size:0.78rem;font-weight:600;color:var(--ink-faint);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Full Payload</div><div class="raw-json">${JSON.stringify(r.raw||r,null,2)}</div></div></td>`;
+        tbody.appendChild(expTr);
+      });
+    }
+
+    function toggleExpand(idx) {
+      const row = document.getElementById(`expand-${idx}`);
+      const btn = row.previousElementSibling.querySelector('.expand-btn');
+      const open = row.style.display === 'table-row';
+      row.style.display = open ? 'none' : 'table-row';
+      btn.textContent   = open ? '▸' : '▾';
+    }
+
+    loadResults();
+    setInterval(loadResults, 30000);
+  </script>
+</body>
+</html>
