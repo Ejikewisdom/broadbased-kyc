@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Identity Verification — Broadbased</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:       #0f1117;
+      --ink-soft:  #4a5060;
+      --ink-faint: #9aa0ae;
+      --surface:   #f7f8fa;
+      --white:     #ffffff;
+      --accent:    #1a56db;
+      --accent-dim:#e8eefb;
+      --success:   #0d7a55;
+      --success-bg:#e6f6f1;
+      --fail:      #c0392b;
+      --fail-bg:   #fdecea;
+      --border:    #e2e5ea;
+      --radius:    14px;
+      --shadow:    0 2px 16px rgba(15,17,23,0.08);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+    .nav-link {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .nav-link:hover { background: var(--accent); color: var(--white); }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 16px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 480px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #1a56db 0%, #1e3a8a 100%);
+      padding: 36px 36px 28px;
+      color: var(--white);
+    }
+    .shield-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .shield-icon svg { width: 26px; height: 26px; }
+    .card-header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.65rem;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .card-header p { font-size: 0.875rem; opacity: 0.8; line-height: 1.5; }
+
+    .steps {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: #f0f4ff;
+    }
+    .step {
+      flex: 1;
+      padding: 14px 12px;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--ink-faint);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      border-right: 1px solid var(--border);
+    }
+    .step:last-child { border-right: none; }
+    .step.active { color: var(--accent); }
+    .step.done   { color: var(--success); }
+    .step-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--border);
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-soft);
+    }
+    .step.active .step-num { background: var(--accent); color: white; }
+    .step.done   .step-num { background: var(--success); color: white; }
+
+    .card-body { padding: 32px 36px; }
+
+    .field { margin-bottom: 20px; }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 7px;
+    }
+    input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: var(--ink);
+      background: var(--white);
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--ink-faint); }
+
+    .notice {
+      background: var(--accent-dim);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.82rem;
+      color: var(--accent);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .btn-verify {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-verify:hover { background: #1348c2; }
+    .btn-verify:active { transform: scale(0.99); }
+    .btn-verify:disabled { background: var(--ink-faint); cursor: not-allowed; transform: none; }
+
+    #result-box {
+      display: none;
+      margin-top: 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+    }
+    #result-box.verified { border-color: var(--success); background: var(--success-bg); }
+    #result-box.failed   { border-color: var(--fail);    background: var(--fail-bg);    }
+
+    .result-header {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    #result-box.verified .result-header { color: var(--success); }
+    #result-box.failed   .result-header { color: var(--fail); }
+
+    .result-body { padding: 14px 18px; border-top: 1px solid rgba(0,0,0,0.06); }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-row span:first-child { color: var(--ink-soft); }
+    .result-row span:last-child  { font-weight: 500; }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.78rem;
+      color: var(--ink-faint);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.35);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @media (max-width: 520px) {
+      .card-header { padding: 28px 24px 22px; }
+      .card-body   { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-brand" href="index.html">Broadbased KYC</a>
+    <a class="nav-link" href="results.html">View Results →</a>
+  </nav>
+
+  <main>
+    <div class="card">
+      <div class="card-header">
+        <div class="shield-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <polyline points="9 12 11 14 15 10"/>
+          </svg>
+        </div>
+        <h1>Identity Verification</h1>
+        <p>NIN face-match verification. Results are saved privately to your dashboard.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step active" id="step-1"><div class="step-num">1</div>Details</div>
+        <div class="step"        id="step-2"><div class="step-num">2</div>Face Scan</div>
+        <div class="step"        id="step-3"><div class="step-num">3</div>Result</div>
+      </div>
+
+      <div class="card-body">
+        <div id="form-section">
+          <div class="notice">
+            Your NIN and face scan are verified against NIMC records. No data is shared with third parties — results are saved only to your private dashboard.
+          </div>
+          <div class="field">
+            <label for="user-id">Reference / User ID</label>
+            <input type="text" id="user-id" placeholder="e.g. customer_001 or any label" />
+          </div>
+          <button class="btn-verify" id="launch-btn" onclick="startVerification()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Start Face Verification
+          </button>
+        </div>
+
+        <div id="result-box">
+          <div class="result-header">
+            <span id="result-icon">✓</span>
+            <span id="result-title">Verification Complete</span>
+          </div>
+          <div class="result-body" id="result-rows"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>Results stored privately · Broadbased Communications · Powered by Prembly</footer>
+
+  <script src="https://widget.prembly.com/widget.js"></script>
+
+  <script>
+    const CONFIG_ID  = "2cb1d69b-46ac-4575-9ed1-0e7fcabd2680";
+    const WIDGET_KEY = "wdgt_50c74ecdccb64ebf92676be4d115ba6d";
+
+    function setStep(n) {
+      for (let i = 1; i <= 3; i++) {
+        const el = document.getElementById(`step-${i}`);
+        el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+      }
+    }
+
+    function showResult(data, status) {
+      const box   = document.getElementById('result-box');
+      const rows  = document.getElementById('result-rows');
+      const title = document.getElementById('result-title');
+      const icon  = document.getElementById('result-icon');
+      const isVerified = status === 'VERIFIED';
+      box.className     = isVerified ? 'verified' : 'failed';
+      box.style.display = 'block';
+      title.textContent = isVerified ? 'Verification Successful' : 'Verification Failed';
+      icon.textContent  = isVerified ? '✓' : '✗';
+      const items = [
+        ['Status',          data.verification?.status || status],
+        ['Name',            [data.first_name, data.last_name].filter(Boolean).join(' ') || '—'],
+        ['Face Confidence', data.face_data?.confidence ? `${data.face_data.confidence.toFixed(1)}%` : '—'],
+        ['Reference',       data.reference || '—'],
+        ['Completed',       new Date().toLocaleTimeString('en-NG')],
+      ];
+      rows.innerHTML = items.map(([k, v]) =>
+        `<div class="result-row"><span>${k}</span><span>${v}</span></div>`
+      ).join('');
+      setStep(3);
+    }
+
+    function startVerification() {
+      const userId = document.getElementById('user-id').value.trim() || `user_${Date.now()}`;
+      const btn    = document.getElementById('launch-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div> Opening scanner…';
+      setStep(2);
+      try {
+        const widget = new IdentityWidget({
+          key:      WIDGET_KEY,
+          configId: CONFIG_ID,
+          metadata: { user_id: userId },
+          onSuccess: (response) => {
+            btn.disabled  = false;
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Start Face Verification';
+            const vData   = response?.verification_response_data?.data || {};
+            const vStatus = response?.data?.verification?.status || 'DONE';
+            showResult({ ...vData, verification: response?.data?.verification }, vStatus);
+          },
+          onError: (err) => {
+            btn.disabled  = false;
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Start Face Verification';
+            setStep(1);
+            const box = document.getElementById('result-box');
+            box.style.display = 'block';
+            box.className     = 'failed';
+            document.getElementById('result-title').textContent = 'Verification Cancelled';
+            document.getElementById('result-icon').textContent  = '✗';
+            document.getElementById('result-rows').innerHTML    =
+              `<div class="result-row"><span>Reason</span><span>Widget closed or timed out</span></div>`;
+          },
+        });
+        widget.open();
+      } catch(e) {
+        btn.disabled  = false;
+        btn.innerHTML = 'Start Face Verification';
+        setStep(1);
+        alert('Widget failed to load. Please refresh and try again.');
+        console.error(e);
+      }
+    }
+  </script>
+
+</body>
+</html>
